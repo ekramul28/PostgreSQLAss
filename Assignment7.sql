@@ -28,28 +28,103 @@ CREATE TABLE enrollment (
 
 -- student data added
 
-INSERT INTO students (student_id, student_name, age, email, frontend_mark, backend_mark, status)
+INSERT INTO students ( student_name, age, email, frontend_mark, backend_mark, status)
 VALUES 
-(1, 'Sameer', 21, 'sameer@example.com', 48, 60, NULL),
-(2, 'Zoya', 23, 'zoya@example.com', 52, 58, NULL),
-(3, 'Nabil', 22, 'nabil@example.com', 37, 46, NULL),
-(4, 'Rafi', 24, 'rafi@example.com', 41, 40, NULL),
-(5, 'Sophia', 22, 'sophia@example.com', 50, 52, NULL),
-(6, 'Hasan', 23, 'hasan@gmail.com', 43, 39, NULL);
+('Sameer', 21, 'sameer@example.com', 48, 60, NULL),
+('Zoya', 23, 'zoya@example.com', 52, 58, NULL),
+('Nabil', 22, 'nabil@example.com', 37, 46, NULL),
+('Rafi', 24, 'rafi@example.com', 41, 40, NULL),
+('Sophia', 22, 'sophia@example.com', 50, 52, NULL),
+('Hasan', 23, 'hasan@gmail.com', 43, 39, NULL);
 
 -- courses data added 
 
-INSERT INTO courses (course_id, course_name, credits)
+INSERT INTO courses (course_name, credits)
 VALUES 
-(1, 'Next.js', 3),
-(2, 'React.js', 4),
-(3, 'Databases', 3),
-(4, 'Prisma', 3);
+( 'Next.js', 3),
+('React.js', 4),
+('Databases', 3),
+('Prisma', 3);
 
 -- add data of enrollment
-INSERT INTO enrollment (enrollment_id, student_id, course_id)
+INSERT INTO enrollment (student_id, course_id)
 VALUES 
-(1, 1, 1),
-(2, 1, 2),
-(3, 2, 1),
-(4, 3, 2);
+( 1, 1),
+( 1, 2),
+( 2, 1),
+( 3, 2);
+
+
+SELECT * FROM students
+
+SELECT * FROM courses
+
+SELECT * FROM enrollment
+
+
+
+-- Query 1
+-- insert a new student 
+
+INSERT INTO students(student_name, age, email, frontend_mark, backend_mark, status)
+VALUES('Md Ekramul Haque',22,'mdekramulhassan168@gmail.com',60,60,NULL);
+
+-- Query 2
+-- Retrieve names of students enrolled in 'Next.js'
+
+SELECT s.student_name 
+FROM students s
+JOIN enrollment e ON s.student_id = e.student_id
+JOIN courses c ON e.course_id = c.course_id
+WHERE c.course_name = 'Next.js';
+
+-- Query 2
+-- or or
+SELECT s.student_name 
+FROM students s
+JOIN enrollment e USING(student_id) 
+JOIN courses c USING(course_id)
+WHERE c.course_name = 'Next.js';
+
+
+-- update status of the  student with height total marks
+SELECT * FROM students WHERE (frontend_mark + backend_mark) = (
+    SELECT MAX(frontend_mark + backend_mark) FROM students
+);
+
+UPDATE students 
+SET status = 'Awarded'
+WHERE (frontend_mark + backend_mark) = (
+    SELECT MAX(frontend_mark + backend_mark) FROM students
+);
+
+-- DELETE all course where student dosen't enrol
+
+DELETE FROM courses
+WHERE course_id NOT IN (
+    SELECT DISTINCT course_id FROM enrollment
+);
+
+
+-- Retrieve student names with LIMIT and OFFSET
+SELECT student_name 
+FROM students
+ORDER BY student_id
+LIMIT 2 OFFSET 2;
+
+-- Retrieve course names and number of students enrolled
+SELECT c.course_name, COUNT(e.student_id) AS students_enrolled
+FROM courses c
+LEFT JOIN enrollment e ON c.course_id = e.course_id
+GROUP BY c.course_name;
+
+-- Calculate the average age of students
+SELECT AVG(age) AS average_age
+FROM students;
+
+
+-- Retrieve names of students with emails containing 'example.com'
+
+SELECT student_name 
+FROM students
+WHERE email LIKE '%example.com%';
